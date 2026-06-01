@@ -2,6 +2,8 @@ package dev.saadm.shopfloor.service;
 
 import dev.saadm.shopfloor.domain.AppUser;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -33,7 +35,10 @@ public class JwtService {
                 .subject(user.getUsername())
                 .claim("roles", List.of(user.getRole().name()))
                 .build();
-        String token = encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        // Explicit HS256 header — NimbusJwtEncoder cannot infer the MAC algorithm
+        // from a symmetric secret on its own, so it must be stated here.
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+        String token = encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
         return new TokenResult(token, expiresAt);
     }
 
