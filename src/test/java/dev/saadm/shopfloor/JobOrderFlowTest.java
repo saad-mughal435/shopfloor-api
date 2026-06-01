@@ -46,6 +46,11 @@ class JobOrderFlowTest {
     }
 
     @Test
+    void rootRedirectsToSwagger() throws Exception {
+        mvc.perform(get("/")).andExpect(status().is3xxRedirection());
+    }
+
+    @Test
     @WithMockUser(username = "operator", roles = "OPERATOR")
     void operatorCannotCreateALine() throws Exception {
         mvc.perform(post("/api/lines").contentType(MediaType.APPLICATION_JSON)
