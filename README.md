@@ -7,6 +7,8 @@
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/saad-mughal435/shopfloor-api)
 
+**▶ Live API (Swagger):** **<https://shopfloor-api-lvb0.onrender.com/swagger-ui.html>** — log in via `POST /api/auth/login` with `manager` / `password`, click **Authorize**, and try every endpoint. (Free instance — the first request after idle takes ~50s to wake.)
+
 A production-floor operations backend — **job orders, real-time OEE, downtime &
 root-cause logging, QC holds, and FIFO inventory** — built in the enterprise
 Java stack: **Spring Boot 3, Spring Data JPA, Spring Security (JWT), Flyway +
