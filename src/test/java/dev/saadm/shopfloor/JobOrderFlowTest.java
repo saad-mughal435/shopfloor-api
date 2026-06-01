@@ -51,6 +51,12 @@ class JobOrderFlowTest {
     }
 
     @Test
+    void docsPageAndOpenApiSpecServe() throws Exception {
+        mvc.perform(get("/swagger-ui.html")).andExpect(status().is2xxSuccessful());
+        mvc.perform(get("/v3/api-docs")).andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
     @WithMockUser(username = "operator", roles = "OPERATOR")
     void operatorCannotCreateALine() throws Exception {
         mvc.perform(post("/api/lines").contentType(MediaType.APPLICATION_JSON)

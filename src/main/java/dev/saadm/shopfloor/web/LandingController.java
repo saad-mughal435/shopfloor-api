@@ -21,8 +21,18 @@ public class LandingController {
 
     @GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<Resource> landing() {
+        return html("static/index.html");
+    }
+
+    /** Custom dark-themed Swagger UI (springdoc's default UI is disabled). */
+    @GetMapping(value = "/swagger-ui.html", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<Resource> docs() {
+        return html("static/docs.html");
+    }
+
+    private ResponseEntity<Resource> html(String classpathFile) {
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
-                .body(new ClassPathResource("static/index.html"));
+                .body(new ClassPathResource(classpathFile));
     }
 }

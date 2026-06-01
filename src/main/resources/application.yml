@@ -38,9 +38,11 @@ app:
     enabled: true
 
 springdoc:
+  # Default Swagger UI is disabled; a custom dark-themed UI is served at
+  # /swagger-ui.html (LandingController + static/docs.html). The OpenAPI spec
+  # stays published at /v3/api-docs for that UI to load.
   swagger-ui:
-    path: /swagger-ui.html
-    operations-sorter: method
+    enabled: false
   api-docs:
     path: /v3/api-docs
 
