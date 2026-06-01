@@ -1,0 +1,22 @@
+# One-click deploy on Render (free):
+#   https://render.com/deploy?repo=https://github.com/saad-mughal435/shopfloor-api
+#
+# Runs the self-contained H2 "demo" profile (seeded data, no external database),
+# so the live Swagger UI works out of the box. The free instance sleeps after
+# ~15 min of inactivity; the first request afterwards wakes it in ~30-60s.
+services:
+  - type: web
+    name: shopfloor-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    envVars:
+      # A strong random signing key, generated and kept by Render.
+      - key: SHOPFLOOR_JWT_SECRET
+        generateValue: true
+      # Keep the JVM within the free tier's 512 MB.
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=70.0

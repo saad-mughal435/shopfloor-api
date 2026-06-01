@@ -5,6 +5,8 @@
 [![Spring Boot 3](https://img.shields.io/badge/Spring%20Boot-3.3-6db33f)](https://spring.io/projects/spring-boot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/saad-mughal435/shopfloor-api)
+
 A production-floor operations backend — **job orders, real-time OEE, downtime &
 root-cause logging, QC holds, and FIFO inventory** — built in the enterprise
 Java stack: **Spring Boot 3, Spring Data JPA, Spring Security (JWT), Flyway +
@@ -54,6 +56,8 @@ is exercised end-to-end when a job order is closed.
 Demo users (seeded on first start, password `password`): **`manager`**, **`operator`**, **`qc`**.
 
 ## Run it
+
+**Live demo:** the **Deploy to Render** button above (free) stands up a live instance running the self-contained H2 profile — the Swagger UI comes up with seeded data, no database to manage. Free instances sleep after inactivity, so the first request wakes it in ~30-60s.
 
 **With Docker (PostgreSQL + Flyway, nothing else to install):**
 
