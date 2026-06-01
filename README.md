@@ -47,6 +47,51 @@ The math lives in one small, fully unit-tested class
 ([`OeeCalculator`](src/main/java/dev/saadm/shopfloor/service/OeeCalculator.java)) and
 is exercised end-to-end when a job order is closed.
 
+## Architecture & how it works
+
+**Layered architecture** — every request flows through Spring Security (JWT), a thin
+REST controller, a service holding the business logic, and a Spring Data JPA
+repository onto the database:
+
+```mermaid
+flowchart LR
+  C["Client / Swagger UI"] -->|"HTTPS + Bearer JWT"| SEC["Spring Security<br/>JWT filter + role checks"]
+  SEC --> CTRL["REST controllers"]
+  CTRL --> SVC["Services<br/>OEE · job orders · inventory · QC"]
+  SVC --> REPO["Spring Data JPA repositories"]
+  REPO --> PG[("PostgreSQL<br/>Flyway-managed")]
+  REPO -. "demo profile" .-> H2[("H2 in-memory")]
+```
+
+**Authentication & request flow** — log in once for a token, then send it on every call:
+
+```mermaid
+sequenceDiagram
+  participant U as Client
+  participant Auth as POST /api/auth/login
+  participant API as Secured endpoint
+  U->>Auth: username + password
+  Auth-->>U: signed JWT (carries the role)
+  U->>API: Authorization header with Bearer token
+  API->>API: verify token, check role (@PreAuthorize)
+  API-->>U: 200 + JSON (401 if no token, 403 if wrong role)
+```
+
+**Job order → OEE lifecycle** — closing a run is what computes OEE:
+
+```mermaid
+stateDiagram-v2
+  [*] --> PLANNED: create
+  PLANNED --> RUNNING: start
+  RUNNING --> RUNNING: log downtime (reason + root cause)
+  RUNNING --> CLOSED: close (good / reject units)
+  CLOSED --> [*]
+  note right of CLOSED
+    totals downtime, then computes
+    OEE = Availability x Performance x Quality
+  end note
+```
+
 ## Roles (method-level security)
 
 | Role | Can do |

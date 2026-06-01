@@ -131,6 +131,16 @@
     .hero { padding: 48px 0 28px; }
     .cta-row .btn { flex: 1; justify-content: center; }
   }
+
+  /* architecture flow diagram */
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; }
+  .flow .node { flex: 1 1 120px; min-width: 112px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 12px; text-align: center; }
+  .flow .node .nk { font-family: var(--mono); color: var(--fg); font-weight: 600; font-size: 13.5px; }
+  .flow .node .nv { font-size: 12px; color: var(--fg-mute); margin-top: 3px; }
+  .flow .node.accent { border-color: var(--line-2); background: linear-gradient(180deg, rgba(110,142,255,0.10), rgba(94,234,212,0.06)); }
+  .flow .arrow { align-self: center; color: var(--teal); font-family: var(--mono); font-size: 18px; }
+  .flow-label { font-family: var(--mono); font-size: 12px; color: var(--fg-mute); margin: 0 0 10px; letter-spacing: .5px; text-transform: uppercase; }
+  @media (max-width: 640px) { .flow { flex-direction: column; } .flow .arrow { transform: rotate(90deg); } }
 </style>
 </head>
 <body>
@@ -225,6 +235,36 @@ curl -s <span class="s">$API</span>/api/lines/1/oee -H <span class="s">"Authoriz
         <div class="card"><h3><span class="ic">⛔</span> Downtime &amp; root cause</h3><p>Log stoppages with minutes, reason, and root cause against a running job — they feed directly into the Availability factor.</p></div>
         <div class="card"><h3><span class="ic">🔬</span> QC holds</h3><p>Raise and release quality holds with severity, tracked by who raised them and when — the quality team's workflow.</p></div>
         <div class="card"><h3><span class="ic">📦</span> FIFO inventory</h3><p>Receive stock into lots and issue it oldest-lot-first (true FIFO), with an immutable movement ledger and on-hand balances.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section>
+    <div class="wrap">
+      <span class="section-tag">Architecture</span>
+      <h2>How a request flows</h2>
+      <p class="flow-label">Request pipeline</p>
+      <div class="flow" style="margin-bottom:28px;">
+        <div class="node accent"><div class="nk">Client</div><div class="nv">Swagger / curl</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="nk">Security</div><div class="nv">JWT + roles</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="nk">Controller</div><div class="nv">REST endpoint</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="nk">Service</div><div class="nv">OEE · FIFO · QC</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="nk">JPA</div><div class="nv">repositories</div></div>
+        <div class="arrow">→</div>
+        <div class="node accent"><div class="nk">PostgreSQL</div><div class="nv">Flyway · H2 demo</div></div>
+      </div>
+      <p class="flow-label">Job order → OEE lifecycle</p>
+      <div class="flow">
+        <div class="node"><div class="nk">PLANNED</div><div class="nv">create</div></div>
+        <div class="arrow">→</div>
+        <div class="node"><div class="nk">RUNNING</div><div class="nv">+ downtime / root cause</div></div>
+        <div class="arrow">→</div>
+        <div class="node accent"><div class="nk">CLOSED</div><div class="nv">computes OEE = A × P × Q</div></div>
       </div>
     </div>
   </section>
