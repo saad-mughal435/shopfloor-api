@@ -1,0 +1,58 @@
+# Default profile = self-contained demo on an in-memory H2 database.
+# Just run `mvn spring-boot:run` (or the jar) — no database to install.
+# Flyway is off here; Hibernate creates the schema and DataSeeder loads demo data.
+# The 'postgres' profile (see application-postgres.yml) flips to PostgreSQL + Flyway.
+spring:
+  application:
+    name: shopfloor-api
+  datasource:
+    url: jdbc:h2:mem:shopfloor;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    enabled: false
+  h2:
+    console:
+      enabled: false
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+# Symmetric (HS256) secret used to both sign and verify API tokens.
+# Override in production: SHOPFLOOR_JWT_SECRET=<random 32+ char string>
+app:
+  jwt:
+    secret: ${SHOPFLOOR_JWT_SECRET:dev-only-shopfloor-secret-change-me-0123456789abcdef}
+    ttl-minutes: 120
+  seed:
+    enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    org.springframework.security: warn

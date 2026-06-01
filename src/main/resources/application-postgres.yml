@@ -1,0 +1,16 @@
+# Production-style profile: PostgreSQL + Flyway-managed schema.
+# Activated with SPRING_PROFILES_ACTIVE=postgres (docker-compose sets this).
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/shopfloor}
+    username: ${SPRING_DATASOURCE_USERNAME:shopfloor}
+    password: ${SPRING_DATASOURCE_PASSWORD:shopfloor}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      # Flyway owns the schema; Hibernate only validates the entities against it.
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
