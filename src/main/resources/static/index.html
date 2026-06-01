@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#07080d" />
+<meta name="color-scheme" content="dark" />
+<title>ShopFloor API — MES / OEE backend · Java + Spring Boot</title>
+<meta name="description" content="A manufacturing-operations (MES/OEE) REST backend in Spring Boot 3 / Java 21: job orders that compute OEE on close, downtime, QC holds, FIFO inventory. Open source, with a live interactive Swagger API." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A//www.w3.org/2000/svg'%20viewBox%3D'0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'1'%20y2%3D'1'%3E%3Cstop%20offset%3D'0%25'%20stop-color%3D'%236e8eff'/%3E%3Cstop%20offset%3D'100%25'%20stop-color%3D'%235eead4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D'64'%20height%3D'64'%20rx%3D'16'%20fill%3D'url(%23g)'/%3E%3Ctext%20x%3D'50%25'%20y%3D'57%25'%20font-family%3D'monospace'%20font-weight%3D'700'%20font-size%3D'30'%20fill%3D'%2307080d'%20text-anchor%3D'middle'%3ESF%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #07080d; --surface: #0d1019; --surface-2: #121726;
+    --line: rgba(124, 156, 255, 0.14); --line-2: rgba(124, 156, 255, 0.28);
+    --fg: #edf1f8; --fg-soft: #b5bdcc; --fg-mute: #7b8597;
+    --blue: #6e8eff; --teal: #5eead4; --green: #34d399; --amber: #f5c451;
+    --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+    --ui: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --radius: 14px; --maxw: 1000px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg-soft);
+    font-family: var(--ui); line-height: 1.6; -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(60vw 60vw at 12% -10%, rgba(110, 142, 255, 0.16), transparent 60%),
+      radial-gradient(50vw 50vw at 100% 110%, rgba(94, 234, 212, 0.12), transparent 60%);
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3 { color: var(--fg); line-height: 1.2; }
+  .mono { font-family: var(--mono); }
+  code { font-family: var(--mono); font-size: 0.92em; background: rgba(124,156,255,0.10); padding: 2px 6px; border-radius: 6px; color: #cdd8ff; }
+
+  /* nav */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(7, 8, 13, 0.72); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-weight: 600; color: var(--fg); font-size: 15px; }
+  .brand .dot { width: 11px; height: 11px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--teal)); box-shadow: 0 0 10px rgba(94,234,212,0.6); }
+  .nav-links { display: flex; align-items: center; gap: 22px; font-size: 14px; }
+  .nav-links a { color: var(--fg-soft); }
+  .nav-links a:hover { color: var(--fg); text-decoration: none; }
+
+  /* hero */
+  .hero { padding: 72px 0 40px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; color: var(--teal); display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+  .eyebrow .live { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .hero h1 { font-size: clamp(38px, 7vw, 64px); font-weight: 800; margin: 0 0 18px; letter-spacing: -0.02em; }
+  .hero h1 .grad { background: linear-gradient(120deg, var(--blue), var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { font-size: clamp(16px, 2.2vw, 20px); color: var(--fg-soft); max-width: 680px; margin: 0 0 28px; }
+  .lead strong { color: var(--fg); font-weight: 600; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; padding: 13px 24px; border-radius: 999px; border: 1px solid transparent; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+  .btn:hover { text-decoration: none; transform: translateY(-2px); }
+  .btn-primary { background: linear-gradient(120deg, var(--blue), var(--teal)); color: #07080d; box-shadow: 0 8px 28px rgba(94,234,212,0.22); }
+  .btn-ghost { background: rgba(124,156,255,0.06); border-color: var(--line-2); color: var(--fg); }
+  .note { margin-top: 18px; font-size: 13px; color: var(--fg-mute); }
+  .note code { font-size: 12px; }
+
+  /* sections */
+  section { padding: 44px 0; border-top: 1px solid var(--line); }
+  .section-tag { font-family: var(--mono); font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--blue); }
+  h2 { font-size: clamp(24px, 4vw, 32px); margin: 8px 0 22px; }
+
+  /* OEE formula */
+  .formula { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; }
+  .formula .eq { font-family: var(--mono); font-size: clamp(17px, 3vw, 24px); color: var(--fg); margin-bottom: 20px; }
+  .formula .eq b { color: var(--teal); }
+  .factors { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .factor { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .factor .k { font-family: var(--mono); color: var(--blue); font-weight: 600; font-size: 14px; }
+  .factor .v { font-size: 13.5px; color: var(--fg-soft); margin-top: 4px; }
+
+  /* steps */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; position: relative; }
+  .step .n { font-family: var(--mono); font-size: 13px; color: #07080d; background: linear-gradient(135deg, var(--blue), var(--teal)); width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font-weight: 700; margin-bottom: 12px; }
+  .step h3 { font-size: 16px; margin: 0 0 6px; }
+  .step p { margin: 0; font-size: 14px; color: var(--fg-soft); }
+
+  /* feature cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; transition: transform .15s ease, border-color .15s ease; }
+  .card:hover { transform: translateY(-3px); border-color: var(--line-2); }
+  .card h3 { font-size: 16px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  .card p { margin: 0; font-size: 14px; color: var(--fg-soft); }
+  .card .ic { font-size: 18px; }
+
+  /* code block */
+  .code { background: #0a0c14; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .code-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .code-bar .d { width: 11px; height: 11px; border-radius: 50%; }
+  .code-bar .d1 { background: #ff5f57; } .code-bar .d2 { background: #febc2e; } .code-bar .d3 { background: #28c840; }
+  .code-bar .ttl { font-family: var(--mono); font-size: 12px; color: var(--fg-mute); margin-left: 8px; }
+  pre { margin: 0; padding: 18px 16px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.7; color: #c8d3ee; }
+  pre .c { color: #6a7585; }
+  pre .s { color: var(--teal); }
+  pre .m { color: var(--amber); }
+  pre .k { color: #c4a8ff; }
+
+  /* roles + stack */
+  .roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .role { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .role .r { font-family: var(--mono); font-weight: 600; color: var(--teal); font-size: 14px; }
+  .role .p { font-size: 13.5px; color: var(--fg-soft); margin-top: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 9px; }
+  .chip { font-family: var(--mono); font-size: 12.5px; color: var(--fg-soft); background: rgba(124,156,255,0.06); border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; }
+
+  /* footer */
+  footer { border-top: 1px solid var(--line); padding: 30px 0 50px; color: var(--fg-mute); font-size: 13.5px; }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; align-items: center; }
+  .foot-links { display: flex; gap: 18px; }
+
+  @media (max-width: 560px) {
+    .nav-links { gap: 14px; }
+    .nav-links .hide-sm { display: none; }
+    .hero { padding: 48px 0 28px; }
+    .cta-row .btn { flex: 1; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <span class="brand"><span class="dot"></span> ShopFloor API</span>
+    <nav class="nav-links">
+      <a href="/swagger-ui.html">API docs</a>
+      <a href="https://github.com/saad-mughal435/shopfloor-api" target="_blank" rel="noopener">GitHub</a>
+      <a class="hide-sm" href="https://saadm.dev" target="_blank" rel="noopener">saadm.dev ↗</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <div class="hero wrap">
+    <div class="eyebrow"><span class="live"></span> Live · Open source · Java&nbsp;21 / Spring&nbsp;Boot&nbsp;3</div>
+    <h1>ShopFloor API<br /><span class="grad">manufacturing operations, in Java.</span></h1>
+    <p class="lead">A production-floor <strong>MES / OEE backend</strong>: job orders that compute
+      <strong>OEE</strong> on close, downtime with root-cause logging, QC holds, and
+      <strong>FIFO inventory</strong> — exposed as a clean, secured REST API with interactive docs you can try right now.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="/swagger-ui.html">Open interactive API docs →</a>
+      <a class="btn btn-ghost" href="https://github.com/saad-mughal435/shopfloor-api" target="_blank" rel="noopener">View source on GitHub ↗</a>
+    </div>
+    <p class="note">Demo logins (password <code>password</code>): <code>manager</code> · <code>qc</code> · <code>operator</code>.
+      &nbsp;Hosted free — the first request after a quiet spell may take ~50s to wake.</p>
+  </div>
+
+  <!-- HOW OEE WORKS -->
+  <section>
+    <div class="wrap">
+      <span class="section-tag">How it works</span>
+      <h2>OEE, the way the plant measures it</h2>
+      <div class="formula">
+        <div class="eq">OEE = <b>Availability</b> × <b>Performance</b> × <b>Quality</b></div>
+        <div class="factors">
+          <div class="factor"><div class="k">Availability</div><div class="v">run time ÷ planned time (run time = planned − downtime)</div></div>
+          <div class="factor"><div class="k">Performance</div><div class="v">ideal time for the units made ÷ run time (ideal time uses the line's rated units/hour)</div></div>
+          <div class="factor"><div class="k">Quality</div><div class="v">good units ÷ total units produced</div></div>
+        </div>
+        <p style="margin:18px 0 0; font-size:14px; color:var(--fg-mute);">When a job order is closed with its run results, the API totals the logged downtime,
+          computes all three factors, and stores the OEE — the same calculation a real line uses.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRY IT IN 3 STEPS -->
+  <section>
+    <div class="wrap">
+      <span class="section-tag">Try it in 30 seconds</span>
+      <h2>Authenticate, then call the live API</h2>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><h3>Get a token</h3><p>In the docs, <code>POST /api/auth/login</code> with <code>manager</code> / <code>password</code> and copy the JWT from the response.</p></div>
+        <div class="step"><div class="n">2</div><h3>Authorize</h3><p>Click the green <strong>Authorize</strong> button in Swagger and paste the token. Every secured endpoint is now unlocked.</p></div>
+        <div class="step"><div class="n">3</div><h3>Run endpoints</h3><p>Hit <strong>Try it out → Execute</strong> on any endpoint — e.g. <code>GET /api/lines/1/oee</code> returns live, computed OEE.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE EXAMPLE -->
+  <section>
+    <div class="wrap">
+      <span class="section-tag">Live example</span>
+      <h2>Real responses, not mock-ups</h2>
+      <div class="code">
+        <div class="code-bar"><span class="d d1"></span><span class="d d2"></span><span class="d d3"></span><span class="ttl">curl · live server</span></div>
+<pre><span class="c"># 1. log in and capture the token</span>
+TOKEN=$(curl -s <span class="s">$API</span>/api/auth/login \
+  -H <span class="s">'Content-Type: application/json'</span> \
+  -d <span class="s">'{"username":"manager","password":"password"}'</span> | jq -r .token)
+
+<span class="c"># 2. ask a line for its rolling OEE</span>
+curl -s <span class="s">$API</span>/api/lines/1/oee -H <span class="s">"Authorization: Bearer $TOKEN"</span>
+
+<span class="c"># → genuinely computed from the seeded job order:</span>
+{ <span class="k">"lineCode"</span>: <span class="s">"LINE-A"</span>, <span class="k">"availability"</span>: <span class="m">0.9229</span>,
+  <span class="k">"performance"</span>: <span class="m">0.9048</span>, <span class="k">"quality"</span>: <span class="m">0.9813</span>, <span class="k">"oee"</span>: <span class="m">0.8194</span> }</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT IT DOES -->
+  <section>
+    <div class="wrap">
+      <span class="section-tag">The domain</span>
+      <h2>What the API covers</h2>
+      <div class="cards">
+        <div class="card"><h3><span class="ic">⚙️</span> Job orders &amp; OEE</h3><p>Plan, start, and close production runs. Closing computes Availability × Performance × Quality and stores it per order and per line.</p></div>
+        <div class="card"><h3><span class="ic">⛔</span> Downtime &amp; root cause</h3><p>Log stoppages with minutes, reason, and root cause against a running job — they feed directly into the Availability factor.</p></div>
+        <div class="card"><h3><span class="ic">🔬</span> QC holds</h3><p>Raise and release quality holds with severity, tracked by who raised them and when — the quality team's workflow.</p></div>
+        <div class="card"><h3><span class="ic">📦</span> FIFO inventory</h3><p>Receive stock into lots and issue it oldest-lot-first (true FIFO), with an immutable movement ledger and on-hand balances.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROLES -->
+  <section>
+    <div class="wrap">
+      <span class="section-tag">Security</span>
+      <h2>Role-based access (JWT)</h2>
+      <div class="roles">
+        <div class="role"><div class="r">MANAGER</div><div class="p">Everything — create lines &amp; job orders, plus all operator and QC actions.</div></div>
+        <div class="role"><div class="r">OPERATOR</div><div class="p">Start/close job orders, log downtime, receive and issue inventory.</div></div>
+        <div class="role"><div class="r">QC</div><div class="p">Raise and release QC holds.</div></div>
+      </div>
+      <p class="note">Stateless HS256 JWTs carry the role as a claim; endpoints enforce it with Spring Security method security (<code>@PreAuthorize</code>).</p>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section>
+    <div class="wrap">
+      <span class="section-tag">Engineering</span>
+      <h2>Built &amp; tested like production</h2>
+      <p style="margin:0 0 18px; max-width:680px;">Layered service architecture, a Flyway-managed PostgreSQL schema that Hibernate validates against the entities, a self-contained H2 demo profile, and a real test suite — unit tests for the OEE math, MockMvc end-to-end flows, and a Testcontainers PostgreSQL integration test, all run by GitHub Actions on every push.</p>
+      <div class="chips">
+        <span class="chip">Java 21</span><span class="chip">Spring Boot 3.3</span><span class="chip">Spring Data JPA</span><span class="chip">Spring Security · JWT</span>
+        <span class="chip">PostgreSQL</span><span class="chip">Flyway</span><span class="chip">H2</span><span class="chip">OpenAPI / Swagger</span>
+        <span class="chip">JUnit 5</span><span class="chip">MockMvc</span><span class="chip">Testcontainers</span><span class="chip">Docker</span><span class="chip">GitHub Actions CI</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>Built by <a href="https://saadm.dev" target="_blank" rel="noopener">Muhammad Saad</a> · MIT licensed · part of the <a href="https://saadm.dev" target="_blank" rel="noopener">saadm.dev</a> portfolio.</div>
+    <div class="foot-links">
+      <a href="/swagger-ui.html">API docs</a>
+      <a href="https://github.com/saad-mughal435/shopfloor-api" target="_blank" rel="noopener">GitHub</a>
+      <a href="/actuator/health">Health</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

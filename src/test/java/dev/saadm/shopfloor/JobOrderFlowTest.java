@@ -46,8 +46,8 @@ class JobOrderFlowTest {
     }
 
     @Test
-    void rootRedirectsToSwagger() throws Exception {
-        mvc.perform(get("/")).andExpect(status().is3xxRedirection());
+    void rootServesTheLandingPage() throws Exception {
+        mvc.perform(get("/")).andExpect(status().is2xxSuccessful());
     }
 
     @Test
