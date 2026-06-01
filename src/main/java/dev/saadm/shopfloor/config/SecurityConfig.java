@@ -50,7 +50,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/actuator/health")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/", "/index.html", "/favicon.ico").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();
