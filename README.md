@@ -9,16 +9,15 @@
 
 **▶ Live API (Swagger):** **<https://shopfloor-api-lvb0.onrender.com/swagger-ui.html>** — log in via `POST /api/auth/login` with `manager` / `password`, click **Authorize**, and try every endpoint. (Free instance — the first request after idle takes ~50s to wake.)
 
-A production-floor operations backend — **job orders, real-time OEE, downtime &
-root-cause logging, QC holds, and FIFO inventory** — built in the enterprise
-Java stack: **Spring Boot 3, Spring Data JPA, Spring Security (JWT), Flyway +
-PostgreSQL, and OpenAPI**.
+A production-floor operations backend - **job orders, real-time OEE, downtime &
+root-cause logging, QC holds, and FIFO inventory** - built on **Spring Boot 3,
+Spring Data JPA, Spring Security (JWT), Flyway + PostgreSQL, and OpenAPI**.
 
-> **Why this exists.** I'm [Muhammad Saad](https://saadm.dev) — I built and run a
-> production MES/ERP for a beverage plant (in Python/FastAPI). This project takes
-> that same domain — OEE, batch close-out, downtime, QC, stock — and implements it
-> the way a Java shop would, so the manufacturing know-how and the Spring Boot
-> engineering are both on the table. Every demo data point is fabricated.
+> **Why this exists.** I ([Muhammad Saad](https://saadm.dev)) built and run a
+> production MES/ERP for a beverage plant, written in Python/FastAPI. That
+> system is private, so this repo rebuilds the same domain - OEE, batch
+> close-out, downtime, QC, stock - in the open, on the Spring stack. Every
+> demo data point is fabricated.
 
 ---
 
@@ -165,4 +164,4 @@ src/main/resources
 
 ## License
 
-MIT © 2026 Muhammad Saad · [saadm.dev](https://saadm.dev) · part of my engineering portfolio.
+MIT © 2026 Muhammad Saad · [saadm.dev](https://saadm.dev)
