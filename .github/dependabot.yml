@@ -5,6 +5,14 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 3
+    ignore:
+      # Spring Boot 4 is a major migration (BOM + package moves, e.g. testcontainers
+      # version management dropped); springdoc 3.x is coupled to it. Track latest 3.x
+      # until a deliberate Boot 4 upgrade is done.
+      - dependency-name: "org.springframework.boot:spring-boot-starter-parent"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.springdoc:springdoc-openapi-starter-webmvc-ui"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
