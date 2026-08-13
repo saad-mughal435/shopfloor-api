@@ -63,6 +63,8 @@ public class OeeCalculator {
         BigDecimal r = numerator.divide(denominator, WORKING_SCALE, RoundingMode.HALF_UP);
         if (r.compareTo(BigDecimal.ONE) > 0) {
             r = BigDecimal.ONE;
+        } else if (r.signum() < 0) {
+            r = BigDecimal.ZERO;
         }
         return r.setScale(SCALE, RoundingMode.HALF_UP);
     }
