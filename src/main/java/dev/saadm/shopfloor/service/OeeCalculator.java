@@ -33,17 +33,17 @@ public class OeeCalculator {
                              int rejectUnits) {
 
         int totalUnits = goodUnits + rejectUnits;
-        int runTimeMinutes = Math.max(0, plannedRuntimeMinutes - downtimeMinutes);
+        int runtimeMinutes = Math.max(0, plannedRuntimeMinutes - downtimeMinutes);
 
         BigDecimal availability = ratio(
-                BigDecimal.valueOf(runTimeMinutes),
+                BigDecimal.valueOf(runtimeMinutes),
                 BigDecimal.valueOf(plannedRuntimeMinutes));
 
         BigDecimal idealMinutes = ratedUnitsPerHour <= 0
                 ? BigDecimal.ZERO
                 : BigDecimal.valueOf((long) totalUnits * 60)
                         .divide(BigDecimal.valueOf(ratedUnitsPerHour), WORKING_SCALE, RoundingMode.HALF_UP);
-        BigDecimal performance = ratio(idealMinutes, BigDecimal.valueOf(runTimeMinutes));
+        BigDecimal performance = ratio(idealMinutes, BigDecimal.valueOf(runtimeMinutes));
 
         BigDecimal quality = ratio(
                 BigDecimal.valueOf(goodUnits),
